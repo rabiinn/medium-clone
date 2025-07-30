@@ -1,15 +1,11 @@
 import express from 'express'
-import { Router } from 'express'
+import userRouter from './routes/user.routes.js';
+import errorMiddleware from './middleware/errorMiddleware.js';
 const app = express()
-const router = Router();
+app.use(express.json());
 
-
-router.get('/hello', (req, res) => {
-    res.status(200).json({message: "Hello World"});
-})
-
-app.use(router);
-
+app.use('/api/users', userRouter);
+app.use(errorMiddleware.errorHandler);
 
 export default app;
 
