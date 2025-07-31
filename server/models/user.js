@@ -24,7 +24,12 @@ const userSchema = mongoose.Schema({
     },
     passwordHash: {
         type: String
-    }
+    },
+    articles: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Article'
+        }
+    ]
 })
 
 const User = mongoose.model("User", userSchema);

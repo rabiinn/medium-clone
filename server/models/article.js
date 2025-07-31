@@ -21,14 +21,16 @@ const articleSchema = mongoose.Schema({
     },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        default: []
     }],
     genre: {
         type: String,
     },
     favoritedBy: [{
        type: mongoose.Schema.Types.ObjectId,
-       ref: 'User'
+       ref: 'User',
+       default: []
     }],
     tags: [String]
     
