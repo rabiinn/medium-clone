@@ -29,6 +29,13 @@ const userSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Article'
         }
+    ],
+    savedArticles: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Article',
+            default: []
+        }
     ]
 })
 
