@@ -1,13 +1,14 @@
 import { Router } from "express";
-import { registerUser, getAllUser, loginUser, saveArticle, removeArticle, getSavedArticles } from "../controllers/user.controller.js";
+import { registerUser, getAllUser, loginUser, getPublicProfile, followUser, unfollowUser } from "../controllers/user.controller.js";
 import { protect } from "../middleware/authMiddleware.js";
 const userRouter = Router();
 
 userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);
 userRouter.get('/getall', protect, getAllUser);
-userRouter.get('/saved', protect,getSavedArticles );
-userRouter.post('/saved/:id', protect, saveArticle);
-userRouter.delete('/saved/:id', protect, removeArticle);
+
+userRouter.get('/:username', getPublicProfile);
+userRouter.post('/:username/follow', protect, followUser);
+userRouter.delete('/:username/unfollow', protect, unfollowUser);
 
 export default userRouter;  

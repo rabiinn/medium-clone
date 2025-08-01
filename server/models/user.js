@@ -36,6 +36,20 @@ const userSchema = mongoose.Schema({
             ref: 'Article',
             default: []
         }
+    ],
+    followers : [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            default: []
+        }
+    ],
+    following: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            default: []
+        }
     ]
 })
 

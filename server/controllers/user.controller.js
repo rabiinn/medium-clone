@@ -1,8 +1,10 @@
 import User from "../models/user.js";
+import Article from "../models/article.js";
 import bcrypt from "bcrypt";
 import config from "../config/config.js";
 import validator from "validator";
 import jwt from "jsonwebtoken";
+
 
 export const registerUser = async (req, res, next) => {
     try{
@@ -119,76 +121,131 @@ export const getAllUser = async (req, res, next) => {
     }
 }
 
-export const saveArticle = async (req, res, next) => {
-    try{
-        const  id = req.params.id;
-
-        if(!id){
-            return res.status(400).json({error: "Article Id required"});
-        }
-
-        const username = req.user.username;
-        const user = await User.findOne({username});
-        if(!user) {
-            return res.status(401).json({error: "User not logged in"});
-        }
-
-        const article = await Article.findById(id);
-        if(!article) {
-            return res.status(404).json({error: "Article not found"});
-        }
-        if(!user.savedArticles.includes(id)) {
-            user.savedArticles.push(id);
-            await user.save();
-        }
-        
-        res.status(200).json({message: "Article saved"});
-
-    }
-    catch(error){
-        next(error);
-    }
-}
-
-export const removeArticle = async ( req, res, next ) => {
-
-    try{
-
-        const id = req.params.id;
-
-        const username = req.user.username;
-        const user = await User.findOne({username});
-
-        if(!user) {
-            return res.status(401).json({error: "User not logged in"});
-        }
-
-       user.savedArticles = user.savedArticles.filter(articleId => articleId.toString() !== id );
-
-       await user.save();
-
-       res.status(204).end();
-        
-
-    }
-    catch(error) {
-        next(error);
-    }
-}
-
-export const getSavedArticles = async (req, res, next ) => {
+export const getPublicProfile = async (req, res, next ) => {
 
     try {
-        const username = req.user.username;
-        const user = await User.findOne({username}).populate('savedArticles');
+        const username = req.params.username;
+
+        if(!username) {
+            return res.status(400).json({ error: 'Usdername parameter is required.'});
+        }
+
+        const user = await User.findOne({username})
+        .populate("followers", "username")
+        .populate("following", "username");
+        
         if(!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const articles = await Article.find({author: user._id }).select('-body');
+
+        res.status(200).json({
+            username: user.username,
+            name: user.name,
+            followerCount: user.followers.length,
+            followingCount: user.following.length,
+            articles
+        });
+    }
+    
+    catch(error) {
+        next(error);
+    }
+}
+
+export const followUser = async ( req, res, next ) => {
+    try {
+        const currentUser = await User.findOne({ username: req.user.username });
+        if( !currentUser ){
             return res.status(401).json({error: "User not logged in"});
         }
 
-        res.status(200).json({ savedArticles: user.savedArticles });
+        const targetUsername = req.params.username;
+
+        if(!targetUsername) {
+            return res.status(400).json({error: "Target username parameter required"});
+        }
+
+        const targetUser = await User.findOne({ username: targetUsername });
+
+        if(!targetUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        if(currentUser._id.equals(targetUser._id)) {
+            return res.status(400).json({ error: "Cannot follow yourself" });
+        }
+
+        if(!targetUser.followers.includes(currentUser._id)) {
+            targetUser.followers.push(currentUser._id);
+            await targetUser.save();
+        }
+
+        if(!currentUser.following.includes(targetUser._id)) {
+            currentUser.following.push(targetUser._id);
+            await currentUser.save();
+        }
+
+        res.status(200).json({ message: `Followed ${targetUsername}`,
+        following: currentUser.following,
+        followers: targetUser.followers,
+        followingCount: currentUser.following.length,
+        followersCount: targetUser.followers.length
+        });
+
     }
 
     catch(error) {
         next(error);
     }
+}
+
+export const unfollowUser  = async (req, res, next ) => {
+ try {
+        const currentUser = await User.findOne({ username: req.user.username });
+        if( !currentUser ){
+            return res.status(401).json({error: "User not logged in"});
+        }
+
+        const targetUsername = req.params.username;
+
+        if(!targetUsername) {
+            return res.status(400).json({error: "Target username parameter required"});
+        }
+
+        const targetUser = await User.findOne({ username: targetUsername });
+
+        if(!targetUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        if (currentUser._id.equals(targetUser._id)) {
+            return res.status(400).json({ error: "Cannot unfollow yourself" });
+        }
+
+
+        targetUser.followers = targetUser.followers.filter(
+            id => id.toString() !== currentUser._id.toString()
+        );
+
+        currentUser.following = currentUser.following.filter(
+            id => id.toString() !== targetUser._id.toString()
+        );
+
+        await targetUser.save();
+        await currentUser.save();
+
+
+        res.status(200).json({ message: `Unfollowed ${targetUsername}`,
+        following: currentUser.following,
+        followers: targetUser.followers,
+        followingCount: currentUser.following.length,
+        followersCount: targetUser.followers.length
+        });
+ }
+ catch(error) {
+    next(error);
+ }
+      
 }
