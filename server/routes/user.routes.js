@@ -10,4 +10,4 @@ userRouter.get('/saved', protect,getSavedArticles );
 userRouter.post('/saved/:id', protect, saveArticle);
 userRouter.delete('/saved/:id', protect, removeArticle);
 
-export default userRouter;
+export default userRouter;  

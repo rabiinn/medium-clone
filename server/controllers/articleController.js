@@ -1,11 +1,69 @@
 import Article from "../models/article.js";
 import User from "../models/user.js";
+
 export const getAllArticles  = async (req, res, next ) => {
 
     try{
-       const articles =  await Article.find({}).populate('author', 'username');
 
-        res.status(200).json(articles);
+       const {
+        page = 1,
+        limit = 10,
+        sortBy = "createdAt",
+        order = "desc",
+        author,
+        tag,
+        q,
+        genre
+       } = req.query;
+
+       const pageNum = parseInt(page);
+       const limitNum = parseInt(limit);
+
+       const filter = { };
+
+       if(author) {
+        const user = await User.findOne({ username: author});
+        if(user) {
+            filter.author = user._id;
+        }
+        else {
+            return res.status(404).json({ error: "Author not found"});
+        }
+       }
+
+       if(tag) {
+            filter.tags = tag;
+       }
+
+       if(genre) {
+            filter.genre = genre;
+       }
+
+       if(q) {
+        filter.$or = [
+            { title: { $regex: q, $options: "i" } },
+            { body: { $regex: q, $options: "i" } },
+        ];
+       }
+
+       const sortOrder = order === "asc" ? 1 : -1;
+
+
+       
+       const articles =  await Article.find(filter).sort({ [ sortBy ]: sortOrder })
+       .skip((page - 1) * limitNum)
+       .limit(limitNum)
+       .populate('author', 'username');
+
+       const totalCount = await Article.countDocuments(filter);
+
+        res.status(200).json({
+            page: pageNum,
+            limit: limitNum,
+            total: totalCount,
+            articles
+        });
+
     }
     catch(error){
         next(error);
