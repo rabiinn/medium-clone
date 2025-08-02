@@ -70,6 +70,24 @@ export const getAllArticles  = async (req, res, next ) => {
     }
 }
 
+export const getArticleBySlug = async (req, res, next ) => {
+    try {
+
+        const article = await Article.findOne({ slug: req.params.slug })
+        .populate('author', 'username');
+
+        if(article) {
+            return res.status(404).json( { error: "Article not found"});
+        }
+
+        res.status(200).json(article);
+    }
+
+    catch (error) {
+        next(error);
+    }
+}
+
 export const createArticle = async (req, res, next ) => {
     try{
         const username = req.user.username;
