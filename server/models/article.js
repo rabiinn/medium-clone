@@ -37,14 +37,23 @@ const articleSchema = mongoose.Schema({
 
 }, {timestamps: true});
 
-articleSchema.pre("save", function (next) {
+articleSchema.pre("save", async function (next) {
     if(!this.isModified("title")) return next();
 
-    this.slug = slugify(this.title, {
+
+    let baseSlug = slugify(this.title, {
         lower: true,
         strict: true,
         trim: true
     });
+    let slug = baseSlug;
+    let count = 1;
+
+    while(await mongoose.models.Article.findOne({ slug })){
+        slug = `${baseSlug}-${count++}`;
+    }
+
+    this.slug = slug;
     
     next();
 });
