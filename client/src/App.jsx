@@ -7,6 +7,7 @@ import SettingsPage from './pages/SettingsPage';
 import RegisterPage from './pages/RegisterPage';
 import { useEffect, useState } from 'react';
 import authService from './services/authService.js';
+import SidebarLayout from './components/SidebarLayout.jsx';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -38,17 +39,15 @@ const App = () => {
   return (
     <div>
       <BrowserRouter>
-        <Link to="/login">Login</Link>
-        <Link to="/register">Register</Link>
-        {user && <button onClick={onLogout}>Logout</button>}
-
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/profile/:username" element={<ProfilePage />} />
-          <Route path="/article/:slug" element={<ArticlePage />} />
+            <Route path='/' element={<SidebarLayout onLogout={onLogout}/>}>
+              <Route index element={<HomePage user={user}/>} />
+              <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/profile/:username" element={<ProfilePage />} />
+              <Route path="/article/:slug" element={<ArticlePage />} />
+            </Route>
         </Routes>
       </BrowserRouter>
     </div>

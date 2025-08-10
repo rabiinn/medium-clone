@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const LoginForm = ({onLogin}) => {
 
     const [ username, setUsername ] = useState('');
-    const [ password, setPassword ] = useState(' ');
+    const [ password, setPassword ] = useState('');
     const navigate = useNavigate();
 
     const handleLogin =  async  (event) => {
@@ -14,7 +14,7 @@ const LoginForm = ({onLogin}) => {
         try {
             
             await onLogin({username, password});
-            navigate('/home');
+            navigate('/');
 
         }
 
