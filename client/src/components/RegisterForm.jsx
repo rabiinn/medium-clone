@@ -1,4 +1,6 @@
 import { useState } from "react";
+import authService from "../services/authService.js";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm = () => {
 
@@ -6,9 +8,31 @@ const RegisterForm = () => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+
+
+    const handleRegistration = async (event) => {
+        event.preventDefault();
+
+        try {
+           await authService.register({
+            name,
+            email,
+            username,
+            password
+            });
+            console.log(`User registered`);
+            navigate('/login');
+        } catch (error) {
+            console.error("Registration failed:", error);
+        }
+
+    }
     
     return (
-        <form className="max-w-md mx-auto mt-10 p-8 bg-white rounded shadow">
+        <form className="max-w-md mx-auto mt-10 p-8 bg-white rounded shadow"
+        onSubmit={handleRegistration}
+        >
             <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
             <div className="mb-4">
                 <label className="block mb-1 font-medium text-gray-700">Name</label>
@@ -51,6 +75,7 @@ const RegisterForm = () => {
             <button
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition"
+
             >
                 Register
             </button>

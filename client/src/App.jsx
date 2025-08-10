@@ -5,24 +5,54 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import RegisterPage from './pages/RegisterPage';
+import { useEffect, useState } from 'react';
+import authService from './services/authService.js';
+
 const App = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    if (token && username) {
+      setUser({ username });
+    }
+  }, []);
+
+  const onLogin = async ({ username, password }) => {
+    try {
+      const res = await authService.login({ username, password });
+      console.log(`${res.username} logged in`);
+      localStorage.setItem('username', res.username);
+      localStorage.setItem('token', res.token);
+    } catch (error) {
+      console.log(`Error while logging in`, error);
+    }
+  };
+
+  const onLogout = async () => {
+    setUser(null);
+    localStorage.clear();
+  };
 
   return (
     <div>
       <BrowserRouter>
         <Link to="/login">Login</Link>
+        <Link to="/register">Register</Link>
+        {user && <button onClick={onLogout}>Logout</button>}
 
         <Routes>
-          <Route path='/' element={<HomePage />} />
-          <Route path='/login' element={<LoginPage />} />
-          <Route path='/register' element={<RegisterPage />} />
-          <Route path='/settings' element={<SettingsPage/>}/>
-          <Route path='/profile/:username' element={<ProfilePage/>}/>
-          <Route path='/article/:slug' element={<ArticlePage/>}/>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route path="/article/:slug" element={<ArticlePage />} />
         </Routes>
       </BrowserRouter>
     </div>
-  )
-}
+  );
+};
 
 export default App;
