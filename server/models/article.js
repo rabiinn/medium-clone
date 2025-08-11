@@ -58,6 +58,8 @@ articleSchema.pre("save", async function (next) {
     next();
 });
 
+
+
 const Article = mongoose.model("Article", articleSchema);
 
 export default Article;

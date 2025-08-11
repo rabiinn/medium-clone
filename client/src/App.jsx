@@ -41,12 +41,12 @@ const App = () => {
       <BrowserRouter>
         <Routes>
             <Route path='/' element={<SidebarLayout onLogout={onLogout}/>}>
-              <Route index element={<HomePage user={user}/>} />
+              <Route index element={<HomePage/>} />
               <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/profile/:username" element={<ProfilePage />} />
-              <Route path="/article/:slug" element={<ArticlePage />} />
+              <Route path="/articles/:slug" element={<ArticlePage />} />
             </Route>
         </Routes>
       </BrowserRouter>
