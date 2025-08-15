@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import publicArticleService from "../services/publicArticleService.js";
+import CommentSection from "../components/CommentSection.jsx";
 
 const ArticlePage = () => {
     const [article, setArticle] = useState(null);
@@ -36,6 +37,7 @@ const ArticlePage = () => {
                     <p key={index} className="mb-4">{paragraph}</p>
                 ))}
             </div>
+            <CommentSection articleId={article._id}/>
         </div>
     );
 };

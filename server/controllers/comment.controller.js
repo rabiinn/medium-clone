@@ -2,41 +2,33 @@ import Comment from "../models/comment.js";
 import User from "../models/user.js";
 import Article from "../models/article.js";
 
-export const addComment =  async (req, res, next) => {
-    try{
+export const addComment = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const { body } = req.body; 
 
-    const id = req.params.id;
+        if (!id) {
+            return res.status(400).json({error: "Id required"});
+        }
+        if (!body) {
+            return res.status(400).json({error: "Body required"});
+        }
 
-    if(!id) {
-        return res.status(400).json({error: "Id required"});
-    }
-    if(!req.body || !req.body.body) {
-        return res.status(400).json({error: "Body required"});
-    }
+        const article = await Article.findById(id);
+        if (!article) {
+            return res.status(404).json({error: "Article not found"});
+        }
 
-    const username = req.user.username;
-    const user = await User.findOne({username});
-    if(!user) {
-        return res.status(401).json({error: "User not logged in"});
-    }
+        const comment = new Comment({
+            body,
+            author: req.user.id,
+            article: article._id
+        });
 
-    const article = await Article.findById(id);
+        const savedComment = await comment.save();
+        res.status(201).json(savedComment);
 
-    if(!article) {
-        return res.status(404).json({error: "Article not found"});
-    }
-
-    const comment = new Comment({
-        body,
-        author: user._id,
-        article: article._id
-    })
-
-    const savedComment = await comment.save();
-    res.status(201).json(savedComment);
-
-    }
-    catch(error){
+    } catch (error) {
         next(error);
     }
 }
@@ -44,7 +36,6 @@ export const addComment =  async (req, res, next) => {
 export const getCommentsForArticle = async (req, res, next) => {
 
     try {
-        const userId = req.user.id;
         const articleId = req.params.id;
 
         const article = await Article.findById(articleId);
@@ -53,7 +44,7 @@ export const getCommentsForArticle = async (req, res, next) => {
             return res.status(404).json({ error : "Article not found "});
         }
 
-        const comments = await Comment.find( { article: articleId }).populate("author", "username").sort({ createdAt: -1 });
+        const comments = await Comment.find( { article: articleId }).populate("author", "username name").sort({ createdAt: -1 });
 
         res.status(200).json(comments);
 
@@ -71,6 +62,10 @@ export const deleteComment = async (req, res, next ) => {
 
         if(!comment) {
             return res.status(404).json({ error: "Comment not found"});
+        }
+
+         if (comment.article.toString() !== articleId) {
+            return res.status(400).json({ error: "Comment does not belong to this article" });
         }
 
         if(comment.author.toString() !== req.user.id ) {
@@ -99,7 +94,7 @@ export const updateComment = async (req, res, next ) => {
             return res.status(404).json({error: "Comment not found"});
         }
         if(comment.article.toString() !== articleId ){
-            return res.status(403).json({error: "Comment doesnot belong to the article"});
+            return res.status(400).json({error: "Comment doesnot belong to the article"});
         }
         if(comment.author.toString() !== req.user.id) {
             return res.status(403).json({ error: "Not authorized to update this comment"});
