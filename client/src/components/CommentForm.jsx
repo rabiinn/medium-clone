@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 const CommentForm = ({ addComment }) => {
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -9,11 +9,11 @@ const CommentForm = ({ addComment }) => {
     if (!comment.trim()) return;
     setSubmitting(true);
     // Simulate API call
-   const addedComment =  await addComment({
-        body: comment
+    const addedComment = await addComment({
+      body: comment,
     });
     if (addedComment) {
-      setComment("");
+      setComment('');
       setSubmitting(false);
     }
   };
@@ -38,7 +38,7 @@ const CommentForm = ({ addComment }) => {
           disabled={submitting || !comment.trim()}
           className="bg-green-600 text-white border-none rounded-full px-6 py-2 font-semibold cursor-pointer hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
         >
-          {submitting ? "Posting..." : "Post"}
+          {submitting ? 'Posting...' : 'Post'}
         </button>
       </div>
     </form>

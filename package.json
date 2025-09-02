@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "bcrypt": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.539.0",
     "validator": "^13.15.15"
   }
 }

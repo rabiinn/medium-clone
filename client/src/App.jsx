@@ -7,7 +7,9 @@ import SettingsPage from './pages/SettingsPage';
 import RegisterPage from './pages/RegisterPage';
 import { useEffect, useState } from 'react';
 import authService from './services/authService.js';
-import SidebarLayout from './components/SidebarLayout.jsx';
+import NavBar from './components/NavBar.jsx';
+import CreateArticlePage from './pages/CreateArticlePage.jsx';
+import articleService from './services/articleService.js';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -36,18 +38,28 @@ const App = () => {
     localStorage.clear();
   };
 
+  const handleCreateArticle = async (articleData) => {
+    const token = localStorage.getItem('token');
+    const created = await articleService.createArticle(articleData, token);
+    return created;
+  };
+
   return (
     <div>
       <BrowserRouter>
         <Routes>
-            <Route path='/' element={<SidebarLayout onLogout={onLogout}/>}>
-              <Route index element={<HomePage/>} />
-              <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/profile/:username" element={<ProfilePage />} />
-              <Route path="/articles/:slug" element={<ArticlePage />} />
-            </Route>
+          <Route path="/" element={<NavBar />}>
+            <Route index element={<HomePage />} />
+            <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/profile/:username" element={<ProfilePage />} />
+            <Route path="/articles/:slug" element={<ArticlePage />} />
+            <Route
+              path="/write"
+              element={<CreateArticlePage onSubmit={handleCreateArticle} />}
+            />
+          </Route>
         </Routes>
       </BrowserRouter>
     </div>
